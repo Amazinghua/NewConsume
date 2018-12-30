@@ -31,9 +31,16 @@ function callBack_load(data) {
         //console.log(jsonDataTree);
         //alert(JSON.stringify(jsonDataTree));
         //document.getElementById("hh").innerHTML = JSON.stringify(jsonDataTree);
-        zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, jsonData);
+        $.fn.zTree.init($("#treeDemo"), setting, jsonData);
+        setCheck();
 
     }
+}
+function setCheck() {
+    var zTree = $.fn.zTree.getZTreeObj("treeDemo"),
+        type = { "Y": "ps", "N": "ps" };
+    zTree.setting.check.chkboxType = type;
+    
 }
 	//将json串转换成树形结构
 function transData(a, idStr, pidStr, chindrenStr) {
@@ -65,6 +72,9 @@ var setting = {
         onRemove: zTreeOnRemove,
         onClick: zTreeOnClick
 
+    },
+    check: {
+        enable: true
     },
     data: {
         simpleData: {

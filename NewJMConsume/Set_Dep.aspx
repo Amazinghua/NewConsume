@@ -9,6 +9,7 @@
         <script src="mysrc/commen_js/MJ_JSComment.js"></script>
     <script src="tree/js/jquery.ztree.core.js"></script>
     <script src="tree/js/jquery.ztree.exedit.js"></script>
+    <script src="tree/js/jquery.ztree.excheck.min.js"></script>
     <script src="tree/js/TreeShow.js"></script>
     <script src="mysrc/js/fileInput/fileinput.js"></script>
     <script src="mysrc/js/fileInput/zh.js"></script>
