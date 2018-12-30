@@ -1,0 +1,4 @@
+2018-12-26 09:54:59:	WangTianHua	{"text":{"content":"充值提醒:你好！您的饭卡于 </br> 2018/12/26 9:54:58充值100元"},"touser":"WangTianHua","toparty":null,"totag":null,"msgtype":"text","agentid":"1000007","safe":"0"}	{"errcode":0,"errmsg":"ok","invaliduser":""}
+2018-12-26 09:54:59:	TanMeiDong	{"text":{"content":"充值提醒:你好！您的饭卡于 </br> 2018/12/26 9:54:59充值100元"},"touser":"TanMeiDong","toparty":null,"totag":null,"msgtype":"text","agentid":"1000007","safe":"0"}	{"errcode":0,"errmsg":"ok","invaliduser":""}
+2018-12-26 10:09:08:	WangTianHua	{"text":{"content":"充值提醒:你好！您的饭卡于 </br> 2018/12/26 10:09:08充值1元"},"touser":"WangTianHua","toparty":null,"totag":null,"msgtype":"text","agentid":"1000007","safe":"0"}	{"errcode":0,"errmsg":"ok","invaliduser":""}
+2018-12-26 10:11:30:	WangTianHua	{"text":{"content":"充值提醒:你好！您的饭卡于 </br> 2018/12/26 10:11:29充值1元"},"touser":"WangTianHua","toparty":null,"totag":null,"msgtype":"text","agentid":"1000007","safe":"0"}	{"errcode":0,"errmsg":"ok","invaliduser":""}

@@ -1,0 +1,2 @@
+2018-12-18 21:03:30:	WangTianHua	{"text":{"content":"充值提醒:你好！您的饭卡于 </br> 2018/12/18 21:03:30充值20元"},"touser":"WangTianHua","toparty":null,"totag":null,"msgtype":"text","agentid":"1000007","safe":"0"}	{"errcode":0,"errmsg":"ok","invaliduser":""}
+2018-12-18 21:04:15:	WangTianHua	{"text":{"content":"充值提醒:你好！您的饭卡于 </br> 2018/12/18 21:04:15充值200元"},"touser":"WangTianHua","toparty":null,"totag":null,"msgtype":"text","agentid":"1000007","safe":"0"}	{"errcode":0,"errmsg":"ok","invaliduser":""}
