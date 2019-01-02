@@ -2,8 +2,6 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <style>
-
-
         .table-d table {
             border: 1px solid #F00;
             border-collapse: collapse
@@ -13,13 +11,19 @@
                 border: 1px solid #F00;
             }
     </style>
+    <link href="tree/css/zTreeStyle/zTreeStyle.css" rel="stylesheet" />
     <link href="mysrc/js/fileInput/fileinput.css" rel="stylesheet" />
     <script src="mysrc/pagejs/TU_Cash.js"></script>
+    <script src="tree/js/jquery.ztree.core.js"></script>
+    <script src="tree/js/jquery.ztree.exedit.js"></script>
+    <script src="tree/js/jquery.ztree.excheck.min.js"></script>
+    <%--        <script src="tree/js/TreeShow.js"></script>--%>
     <script src="mysrc/js/fileInput/fileinput.js"></script>
     <script src="mysrc/js/fileInput/zh.js"></script>
     <script>
         $(document).ready(function () {
-            load_company();
+            //load_company();
+            load_tree(true, 1);
             $("#fileInput").fileinput({
 
                 uploadUrl: 'Fileup.ashx?type=fileToadd',
@@ -81,7 +85,7 @@
                             <input type="text" class="form-control" id="check_key" />
                         </div>
                         <div class="form-group">
-                            <input type="button" class="btn btn-primary" value="查询" onclick="check_user(true,1)" />
+                            <input type="button" class="btn btn-primary" value="查询" onclick="check_user(true, 1)" />
                         </div>
                     </div>
                 </div>
@@ -109,7 +113,7 @@
                                 <option selected="selected" value="个人充值">个人充值</option>
                             </select>
                         </div>
-                                                <div class="form-group">
+                        <div class="form-group">
                             <label>充值金额:</label>
                         </div>
                         <div class="form-group">
@@ -124,12 +128,12 @@
                         <div class="form-group">
                             <input type="button" class="btn btn-primary " value="提交" onclick="showAdd()" />
                         </div>
-<%--                                                <div class="form-group">
+                        <%--                                                <div class="form-group">
                             <input type="button" class="btn btn-primary " value="test" onclick="getChecked()" />
                         </div>--%>
                     </div>
                 </div>
-<%--                <div class="row" style="margin-top: 20px;">
+                <%--                <div class="row" style="margin-top: 20px;">
                     <div class="col-lg-12 form-inline">
                     </div>
                 </div>--%>
@@ -182,7 +186,7 @@
                 <%-- 输入行--%>
                 <div class="row">
                     <div class="col-lg-12 form-inline">
-                        <div class="form-group">
+                        <%--                        <div class="form-group">
                             <label>选择公司:</label>
                             <select class="form-control" id="select_company" data-width="auto" onchange="Dispaydept($('#select_company option').filter(':selected').val());">
                                 <option selected="selected" value="">请选择</option>
@@ -193,7 +197,7 @@
                             <select class="form-control" id="select_dept" data-width="auto">
                                 <option selected="selected" value="">请选择</option>
                             </select>
-                        </div>
+                        </div>--%>
                         <%--                        <div class="form-group">
                             <label>选择人员:</label>
                             <select class="form-control" id="select_staff" data-width="auto">
@@ -219,6 +223,22 @@
                         </div>
                         <div class="form-group">
                             <input type="button" class="btn btn-primary" onclick="add_money_dept()" value="确定充值" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 20px;">
+                    <div class="col-lg-2">
+                        <ul id="treeDemo" class="ztree"></ul>
+                    </div>
+                    <div class="col-lg-10">
+                        <table class="table table-bordered" id="table2">
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div style="text-align: center">
+                            <ul id="pageLimit2"></ul>
                         </div>
                     </div>
                 </div>
