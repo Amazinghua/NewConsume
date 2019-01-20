@@ -39,7 +39,7 @@ function callBack_table(data) {
         $("#pageLimit").empty();
         if (data.execDt.length != 0) {
             generateTable(data.execDt, dic_head);
-            bindpaginator(data.numcount);
+            bindpaginator(data.numcount,data.numid);
         } else {
 
         }
@@ -163,7 +163,7 @@ function checkStatus(isuse) {
     return str;
 }
 //分页插件
-function bindpaginator(tatal) {
+function bindpaginator(tatal,id) {
     var tp = Math.ceil(tatal / 10)
     $('#pageLimit').bootstrapPaginator({
         currentPage: now_page,//当前的请求页面。
@@ -182,7 +182,7 @@ function bindpaginator(tatal) {
             }
         },
         onPageClicked: function (event, originalEvent, type, page) {
-            load_user(false, page);
+            load_user(false, page, id);
         }
     });
 

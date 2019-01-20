@@ -1,9 +1,9 @@
 ﻿var now_page = 1;
 dic_head = {
     order_date: "日期",
-    usr_no: "账号",
+    usr_name: "姓名",
     card_no: "卡号",
-    dept_ID: "部门名称",
+    Dept_Name: "部门名称",
     order_Price_Type: "餐次",
     order_not_count: "订餐未就餐数量",
     meal_types:"餐类"
@@ -18,6 +18,14 @@ $(document).ready(function () {
 function load(isfirst, pc) {
     var beg_not = $("#beg_not").val();
     var end_not = $("#end_not").val();
+    if (beg_not != "" && end_not == "") {
+        alert("请输入结束时间!");
+        return;
+    }
+    if (beg_not == "" && end_not != "") {
+        alert("请输入起始时间!");
+        return;
+    }
     var name_not = $("#name_not").val();
     var dept_not = $("#dept_not").val();
     var price_type_not = $("#price_type_not").val();

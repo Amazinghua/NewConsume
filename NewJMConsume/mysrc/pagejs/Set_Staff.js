@@ -3,7 +3,7 @@ dic_head = {
     Company: "公司",
     usr_no: "帐号",
     usr_name: "姓名",
-    dept_ID: "部门",
+    Dept_Name: "部门",
     card_no: "卡号",
     card_state: "饭卡状态",
     phone_no: "号码",
@@ -380,7 +380,7 @@ function callBack_addRole(data) {
 //显示更新状态的模态框
 function showCant(id) {
     var jsonObj = {
-        type: "set_staff_load",
+        type: "set_staff_check",
         id: id,
         pc: "1"
     }

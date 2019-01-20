@@ -49,6 +49,10 @@ namespace NewJMConsume
                     string id = jobject(jobj, "id");//表的主键
 
                     string btn_type = jobject(jobj, "btn_type");
+
+                    string nowmoney = "";
+                    float nm = 0;
+                    float addmoney = 0;
                     if (types != "")
                     {
                         switch (types)
@@ -136,17 +140,68 @@ namespace NewJMConsume
 
                                 break;
                             #endregion
+                            #region//充值记录加载
+                            case "TU_detail_load":
+                                string detail_btime = jobject(jobj, "btime");
+                                string detail_etime = jobject(jobj, "etime");
+                                string detail_usr_name = jobject(jobj, "usr_no");
+                                string detail_card_no = jobject(jobj, "card_no");
+                                string detail_method = jobject(jobj, "method");
+                                string detail_creator = jobject(jobj, "creator");
+                                if(detail_btime !="" && detail_etime != "")
+                                {
+                                    wherestr += "and left(t1.create_date,10) between '" + detail_btime + "'and '" + detail_etime + "'";
+                                }
+                                if(detail_usr_name != "")
+                                {
+                                    wherestr += "and t2.usr_name like '%"+detail_usr_name+"%'";
+                                }
+                                if(detail_card_no != "")
+                                {
+                                    wherestr += "and t1.card_no like '%"+detail_card_no+"%'";
+                                }
+                                if(detail_method != "")
+                                {
+                                    wherestr += "and t1,method like '%"+detail_method+"%'";
+                                }
+                                if(detail_creator != "")
+                                {
+                                    wherestr += "and t1.creator like '%"+detail_creator+"%'";
+                                }
+                                if(btn_type != "")
+                                {
+
+                                }
+                                if(wherestr != "")
+                                {
+                                    check_str = "select t2.usr_name,t1.usr_no,t1.card_no,t1.add_money,t1.method,t1.create_date,t1.creator,t1.ReMark from tab_add_money t1,tab_user_info t2 where t1.card_no = t2.card_no " + wherestr;
+                                    execDt = MysqlHelper.ToDataTablePager(out recordCount, check_str, page, 10);
+                                    resjobj.Add("result", JToken.FromObject("ok"));
+                                    resjobj.Add("execDt", JToken.FromObject(execDt));
+                                    resjobj.Add("numcount", JToken.FromObject(recordCount));
+                                }
+                                else
+                                {
+                                    wherestr = "select t2.usr_name,t1.usr_no,t1.card_no,t1.add_money,t1.method,t1.create_date,t1.creator,t1.ReMark from tab_add_money t1,tab_user_info t2 where t1.card_no = t2.card_no";
+                                    execDt = MysqlHelper.ToDataTablePager(out recordCount, wherestr, page, 10);
+                                    resjobj.Add("result", JToken.FromObject("ok"));
+                                    resjobj.Add("execDt", JToken.FromObject(execDt));
+                                    resjobj.Add("numcount", JToken.FromObject(recordCount));
+
+                                }
+                                break;
+                            #endregion
                             #region//加载余额查询页面
                             case "load_Card":
                                 string dept_card = jobject(jobj, "dept_card");
                                 string name_card = jobject(jobj, "name_card");
                                 if (dept_card != "")
                                 {
-                                    wherestr += "and  b.Dept_Name  LIKE '%" + dept_card + "%'";
+                                    wherestr += "and  Dept_Name  LIKE '%" + dept_card + "%'";
                                 }
                                 if (name_card != "")
                                 {
-                                    wherestr += "and a.usr_name like '%" + name_card + "%'";
+                                    wherestr += "and usr_name like '%" + name_card + "%'";
                                 }
                                 if (btn_type != "")
                                 {
@@ -178,38 +233,129 @@ namespace NewJMConsume
                                 }
                                 if (wherestr != "")
                                 {
-                                    check_str = "select a.usr_name,a.card_no,b.Dept_Name,a.card_money FROM tab_user_info as a,tbdeptinfo b where a.dept_ID = b.Dept_Id" + wherestr;
+                                    check_str = "select * from (select d.usr_name,d.card_no,a.Dept_Id, a.Dept_Name, coalesce(b.Dept_Name, a.Dept_Name) as root,COALESCE(c.Dept_Name,'') as proot,d.card_money from tbdeptinfo a left join tbdeptinfo b on a.Dept_up = b.Dept_Id left JOIN tbdeptinfo c on b.Dept_up = c.Dept_Id  JOIN tab_user_info d on a.dept_Id = d.Dept_Id )as all_tab where 1=1 " + wherestr;
                                     execDt = MysqlHelper.ToDataTablePager(out recordCount, check_str, page, 10);
-                                    resjobj.Add("result", JToken.FromObject("ok"));
-                                    resjobj.Add("execDt", JToken.FromObject(execDt));
-                                    resjobj.Add("numcount", JToken.FromObject(recordCount));
                                 }
                                 else
                                 {
                                     //wherestr = "select c.usr_name,c.card_no,d.Dept_Name,COALESCE(a.addsum,0)-COALESCE(b.minSum,0) as balance from (select sum(acc_money) as addsum, usr_no from tab_add_money GROUP BY usr_no) as a,(select sum(order_money) as minSum,usr_no from tab_tran_info GROUP BY usr_no) as b, (select * from tab_user_info) as c,(select * from tbdeptinfo) as d where a.usr_no = b.usr_no and b.usr_no = c.usr_no and c.dept_ID = d.dept_Id";
-                                    wherestr = "select * from (select d.usr_name,d.card_no,a.Dept_Id, a.Dept_Name, coalesce(b.Dept_Name, a.Dept_Name) as root,COALESCE(c.Dept_Name,'') as proot,d.card_money from tbdeptinfo a left join tbdeptinfo b on a.Dept_up = b.Dept_Id left JOIN tbdeptinfo c on b.Dept_up = c.Dept_Id LEFT JOIN tab_user_info d on a.dept_Id = d.Dept_Id )as all_tab where usr_name != ''";
+                                    wherestr = "select * from (select d.usr_name,d.card_no,a.Dept_Id, a.Dept_Name, coalesce(b.Dept_Name, a.Dept_Name) as root,COALESCE(c.Dept_Name,'') as proot,d.card_money from tbdeptinfo a left join tbdeptinfo b on a.Dept_up = b.Dept_Id left JOIN tbdeptinfo c on b.Dept_up = c.Dept_Id  JOIN tab_user_info d on a.dept_Id = d.Dept_Id )as all_tab";
                                     execDt = MysqlHelper.ToDataTablePager(out recordCount, wherestr, page, 10);
-                                    execDt.Columns.Add("all_root", typeof(string));
-                                    for (int i = 0; i < execDt.Rows.Count; i++)
+                                }
+                                execDt.Columns.Add("all_root", typeof(string));
+                                for (int i = 0; i < execDt.Rows.Count; i++)
+                                {
+                                    if (execDt.Rows[i]["Dept_Name"].ToString() == execDt.Rows[i]["root"].ToString())
                                     {
-                                        if (execDt.Rows[i]["Dept_Name"].ToString() == execDt.Rows[i]["root"].ToString())
-                                        {
-                                            execDt.Rows[i]["all_root"] = execDt.Rows[i]["root"].ToString();
-                                        }
-                                        else
-                                        {
-                                            execDt.Rows[i]["all_root"] = execDt.Rows[i]["proot"].ToString() + "/" + execDt.Rows[i]["root"].ToString() + "/" + execDt.Rows[i]["Dept_Name"].ToString();
-                                        }
-
+                                        execDt.Rows[i]["all_root"] = execDt.Rows[i]["root"].ToString();
+                                    }
+                                    else
+                                    {
+                                        execDt.Rows[i]["all_root"] = execDt.Rows[i]["proot"].ToString() + "/" + execDt.Rows[i]["root"].ToString() + "/" + execDt.Rows[i]["Dept_Name"].ToString();
                                     }
 
-                                    resjobj.Add("result", JToken.FromObject("ok"));
-                                    resjobj.Add("execDt", JToken.FromObject(execDt));
-                                    resjobj.Add("numcount", JToken.FromObject(recordCount));
                                 }
+                                resjobj.Add("result", JToken.FromObject("ok"));
+                                resjobj.Add("execDt", JToken.FromObject(execDt));
+                                resjobj.Add("numcount", JToken.FromObject(recordCount));
                                 break;
                             #endregion
 
+                            #region//查找需要充值的部门的所有人员
+
+                            case "select_all_department":
+                                string show_checked = jobject(jobj, "user_checked");
+                                string show_money = jobject(jobj, "money");
+                                //遍历人员充值
+                                string[] show_array = show_checked.Split(',');
+                                int[] show_iNums;
+                                show_iNums = Array.ConvertAll(show_array, int.Parse);
+                                List<string> show_list = new List<string>();
+                                foreach (int i in show_iNums)
+                                {
+                                    if (i == show_iNums[0])
+                                    {
+                                        wherestr += "where t1.dept_ID ='" + i + "'";
+                                    }
+                                    else
+                                    {
+                                        wherestr += " or t1.dept_ID ='" + i + "'";
+                                    }
+                                }
+                                check_str = "select t1.ust_ID,t1.usr_name,t2.Dept_Name,t1.card_no,t1.phone_no from tab_user_info t1 LEFT JOIN tbdeptinfo t2 on t1.dept_ID =t2.Dept_Id " + wherestr;
+                                DataTable show_dt = MySqlDB.MysqlHelper.ExecuteDataTable(check_str);
+                                resjobj.Add("result", JToken.FromObject("success"));
+                                resjobj.Add("msg", JToken.FromObject("请确定充值人员"));
+                                resjobj.Add("show_dt", JToken.FromObject(show_dt));
+
+                                break;
+                            #endregion
+                            #region//按部门充值
+                            case "department_charge":
+                                //string cardno = jobject(jobj, "cardno");
+                                //string name = jobject(jobj, "name");
+                                string dept_checked = jobject(jobj, "user_checked");
+                                string dept_method = jobject(jobj, "method");
+                                string dept_money = jobject(jobj, "money");
+                                string dept_memo = jobject(jobj, "memo");
+                                string dept_usrno = jobject(jobj, "usrno");
+                                //string cash_phone = jobject(jobj, "cash_phone");
+                                //float dept_nm = 0;
+                                //float dept_addmoney = 0;
+                                //遍历人员充值
+                                string[] dept_array = dept_checked.Split(',');
+                                int[] dept_iNums;
+                                dept_iNums = Array.ConvertAll(dept_array, int.Parse);
+                                List<string> department_charge_list = new List<string>();
+                                foreach (int i in dept_iNums)
+                                {
+                                    DataTable dt0 = MysqlHelper.ExecuteDataTable("select * from tab_user_info where dept_ID ='" + i + "'");
+                                    if(dt0.Rows.Count != 0)
+                                    {
+                                        for(int k = 0; k < dt0.Rows.Count; k++)
+                                        {
+                                            nowmoney = dt0.Rows[k]["card_money"].ToString();
+                                            nm = float.Parse(nowmoney);
+                                            addmoney = float.Parse(dept_money) + nm;
+                                            int execNum2 = MysqlHelper.ExecuteNonQuery("update tab_user_info set card_money = '" + addmoney + "' where ust_ID ='" + dt0.Rows[k]["ust_ID"].ToString() + "'");
+                                            if(execNum2 == 1)
+                                            {
+                                                execNum = MysqlHelper.ExecuteNonQuery("insert into tab_add_money (usr_no,add_year,add_month,add_money,minus_money,acc_money,create_date,creator,method,ReMark,usr_name,card_no)values('" + dt0.Rows[k]["usr_no"].ToString() + "', year(CURRENT_DATE), month(CURRENT_DATE), '" + dept_money + "', '0', '" + dept_money + "', NOW(), '" + dept_usrno + "', '" + dept_method + "', '" + dept_memo + "', '" + dept_usrno + "', '" + dt0.Rows[k]["card_no"].ToString() + "')");
+                                                if (execNum == 1)
+                                                {
+                                                    department_charge_list.Add(dt0.Rows[k]["ust_ID"].ToString());
+                                                    string message = "充值提醒:" + "你好！您的饭卡于 </br> " + DateTime.Now.ToString() + "充值" + dept_money + "元";
+                                                    //插入微信推送充值记录
+                                                    int a = MysqlHelper.ExecuteNonQuery("insert into WX_add_money_push_info (usr_no,add_money,message,phone_no,create_time)values('" + dt0.Rows[k]["usr_no"].ToString() + "','" + dept_money + "','" + message + "','" + dt0.Rows[k]["phone_no"].ToString() + "',NOW())");
+
+                                                    MySqlDB.QYWeixinHelper.SendText(dt0.Rows[k]["usr_no"].ToString(), message);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                //遍历充值成功的人员数组
+                                string[] strArray = department_charge_list.ToArray();//strArray=[str0,str1,str2]
+                                foreach(string iarray in strArray)
+                                {
+                                    if(iarray == strArray[0])
+                                    {
+                                        wherestr += "where ust_ID ='" + iarray + "'";
+                                    }
+                                    else
+                                    {
+                                        wherestr += " or ust_ID ='" + iarray + "'";
+                                    }
+                                }
+                                if (wherestr != "")
+                                {
+                                    DataTable department_dt = MySqlDB.MysqlHelper.ExecuteDataTable("select * from tab_user_info " + wherestr);
+                                    resjobj.Add("result", JToken.FromObject("success"));
+                                    resjobj.Add("msg", JToken.FromObject("充值成功"));
+                                    resjobj.Add("department_dt", JToken.FromObject(department_dt));
+                                }
+                                break;
+                            #endregion
                             #region//个人充值
                             case "recharge_self":
                                 //string cardno = jobject(jobj, "cardno");
@@ -220,16 +366,15 @@ namespace NewJMConsume
                                 string memo = jobject(jobj, "memo");
                                 string usrno = jobject(jobj, "usrno");
                                 //string cash_phone = jobject(jobj, "cash_phone");
-                                float nm = 0;
-                                float addmoney = 0;
                                 #region//遍历人员充值
                                 string[] user_array = user_checked.Split(',');
                                 int[] iNums;
                                 iNums = Array.ConvertAll(user_array, int.Parse);
+                                List<string> self_charge_list = new List<string>();
                                 foreach (int i in iNums)
                                 {
                                     DataTable dt0 = MysqlHelper.ExecuteDataTable("select * from tab_user_info where ust_ID ='" + i + "'");
-                                    string nowmoney = dt0.Rows[0]["card_money"].ToString();
+                                    nowmoney = dt0.Rows[0]["card_money"].ToString();
                                     nm = float.Parse(nowmoney);
                                     addmoney = float.Parse(money) + nm;
                                     int execNum2 = MysqlHelper.ExecuteNonQuery("update tab_user_info set card_money = '" + addmoney + "' where ust_ID ='" + i + "'");
@@ -238,6 +383,7 @@ namespace NewJMConsume
                                         execNum = MysqlHelper.ExecuteNonQuery("insert into tab_add_money (usr_no,add_year,add_month,add_money,minus_money,acc_money,create_date,creator,method,ReMark,usr_name,card_no)values('" + dt0.Rows[0]["usr_no"].ToString() + "', year(CURRENT_DATE), month(CURRENT_DATE), '" + money + "', '0', '" + money + "', NOW(), '" + usrno + "', '" + method + "', '" + memo + "', '" + usrno + "', '" + dt0.Rows[0]["card_no"].ToString() + "')");
                                         if (execNum == 1)
                                         {
+                                            self_charge_list.Add(i.ToString());
                                             string message = "充值提醒:" + "你好！您的饭卡于 </br> " + DateTime.Now.ToString() + "充值" + money + "元";
                                             //插入微信推送充值记录
                                             int a = MysqlHelper.ExecuteNonQuery("insert into WX_add_money_push_info (usr_no,add_money,message,phone_no,create_time)values('" + dt0.Rows[0]["usr_no"].ToString() + "','" + money + "','" + message + "','" + dt0.Rows[0]["phone_no"].ToString() + "',NOW())");
@@ -246,9 +392,32 @@ namespace NewJMConsume
                                         }
                                     }
                                 }
+                                //遍历充值成功的人员数组
+                                string[] self_Array = self_charge_list.ToArray();//strArray=[str0,str1,str2]
+                                foreach (string iarray in self_Array)
+                                {
+                                    if (iarray == self_Array[0])
+                                    {
+                                        wherestr += "where ust_ID ='" + iarray + "'";
+                                    }
+                                    else
+                                    {
+                                        wherestr += " or ust_ID ='" + iarray + "'";
+                                    }
+                                }
+                                if (wherestr != "")
+                                {
+                                    DataTable self_dt = MySqlDB.MysqlHelper.ExecuteDataTable("select * from tab_user_info " + wherestr);
+                                    self_dt.Columns.Add("add_money_now", typeof(string));
+                                    for(int i = 0; i < self_dt.Rows.Count; i++)
+                                    {
+                                        self_dt.Rows[i]["add_money_now"] = money.ToString();
+                                    }
+                                    resjobj.Add("result", JToken.FromObject("success"));
+                                    resjobj.Add("msg", JToken.FromObject("充值成功"));
+                                    resjobj.Add("self_dt", JToken.FromObject(self_dt));
+                                }
                                 #endregion
-                                resjobj.Add("result", JToken.FromObject("success"));
-                                resjobj.Add("msg", JToken.FromObject("充值成功"));
 
                                 break;
                             case "check_usr":
@@ -294,7 +463,7 @@ namespace NewJMConsume
                                 {
                                     for (int i = 0; i < execDt.Rows.Count; i++)
                                     {
-                                        string nowmoney = MysqlHelper.ExecuteDataTable("select card_money from tab_user_info where usr_no = '" + execDt.Rows[i]["usr_no"].ToString() + "'").Rows[0]["card_money"].ToString();
+                                        nowmoney = MysqlHelper.ExecuteDataTable("select card_money from tab_user_info where usr_no = '" + execDt.Rows[i]["usr_no"].ToString() + "'").Rows[0]["card_money"].ToString();
                                         nm = float.Parse(nowmoney);
                                         add_money = float.Parse(add_money_now) + nm;
                                         int execNum2 = MysqlHelper.ExecuteNonQuery("update tab_user_info set card_money = '" + add_money + "' where usr_no ='" + execDt.Rows[i]["usr_no"].ToString() + "'");
@@ -399,7 +568,7 @@ namespace NewJMConsume
                                 string name_detail = jobject(jobj, "name_detail");
                                 if (check_detail != "")
                                 {
-                                    wherestr += "and left(t1.order_create_date ,10)= '" + check_detail + "'";
+                                    wherestr += "and left(t1.order_date,10)= '" + check_detail + "'";
                                 }
                                 if (price_type_detail != "")
                                 {
@@ -407,18 +576,18 @@ namespace NewJMConsume
                                 }
                                 if (place_detail != "")
                                 {
-                                    wherestr += "and t2.FeePlace = '" + place_detail + "'";
+                                    wherestr += "and t2.FeePlace like '%" + place_detail + "%'";
                                 }
                                 if (name_detail != "")
                                 {
-                                    wherestr += "and t2.usr_name ='" + name_detail + "'";
+                                    wherestr += "and t2.usr_name like '%" + name_detail + "%'";
                                 }
                                 if (btn_type != "")
                                 {
                                     var titHeader = "部门|姓名|订餐生成日期|餐次|餐类|消费地点";
                                     if (wherestr != "") //有条件的导出
                                     {
-                                        check_str = "select t2.dept_ID,t2.usr_name,left(t1.order_create_date ,10) order_data,t1.order_Price_Type,(case when t1.order_Price_Type ='早餐' and order_type='0' then '工作餐' when t1.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types,t2.FeePlace from tab_order_info t1 LEFT JOIN tab_user_info t2 on t1.card_no = t2.card_no where 1=1 " + wherestr;
+                                        check_str = "select t2.dept_ID,t2.usr_name,left(t1.order_date ,10) order_data,t1.order_Price_Type,(case when t1.order_Price_Type ='早餐' and order_type='0' then '工作餐' when t1.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types,t2.FeePlace from tab_order_info t1 JOIN tab_user_info t2 on t1.card_no = t2.card_no where 1=1 " + wherestr;
                                         execDt = MysqlHelper.ExecuteDataTable(check_str);
                                         var fileName = "订餐明细（" + DateTime.Now.ToString("yyyy-MM-ddHHmmss") + "）.xls";
                                         string resultd = DownLoad(fileName, execDt, titHeader);
@@ -431,7 +600,7 @@ namespace NewJMConsume
                                     }
                                     else
                                     {
-                                        wherestr = "select t2.dept_ID,t2.usr_name,left(t1.order_create_date ,10) order_data,t1.order_Price_Type,(case when t1.order_Price_Type ='早餐' and order_type='0' then '工作餐' when t1.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types,t2.FeePlace from tab_order_info t1 LEFT JOIN tab_user_info t2 on t1.card_no = t2.card_no ";
+                                        wherestr = "select t2.dept_ID,t2.usr_name,left(t1.order_date ,10) order_data,t1.order_Price_Type,(case when t1.order_Price_Type ='早餐' and order_type='0' then '工作餐' when t1.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types,t2.FeePlace from tab_order_info t1 JOIN tab_user_info t2 on t1.card_no = t2.card_no ";
                                         execDt = MysqlHelper.ExecuteDataTable(wherestr);
                                         var fileName = "订餐明细（" + DateTime.Now.ToString("yyyy-MM-ddHHmmss") + "）.xls";
                                         string resultd = DownLoad(fileName, execDt, titHeader);
@@ -445,7 +614,7 @@ namespace NewJMConsume
                                 }
                                 if (wherestr != "")
                                 {
-                                    check_str = "select t2.dept_ID,t2.usr_name,left(t1.order_create_date ,10) order_data,t1.order_Price_Type,(case when t1.order_Price_Type ='早餐' and order_type='0' then '工作餐' when t1.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types,t2.FeePlace from tab_order_info t1 LEFT JOIN tab_user_info t2 on t1.card_no = t2.card_no where 1=1 " + wherestr;
+                                    check_str = "select t3.Dept_Name,t2.dept_ID,t2.usr_name,left(t1.order_date ,10) order_data,t1.order_Price_Type,(case when t1.order_Price_Type ='早餐' and order_type='0' then '工作餐' when t1.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types,t2.FeePlace from tab_order_info t1 JOIN tab_user_info t2 on t1.card_no = t2.card_no LEFT JOIN tbdeptinfo t3 on t2.dept_ID = t3.Dept_Id where 1=1 " + wherestr;
                                     execDt = MysqlHelper.ToDataTablePager(out recordCount, check_str, page, 10);
                                     resjobj.Add("result", JToken.FromObject("ok"));
                                     resjobj.Add("execDt", JToken.FromObject(execDt));
@@ -453,7 +622,7 @@ namespace NewJMConsume
                                 }
                                 else
                                 {
-                                    wherestr = "select t2.dept_ID,t2.usr_name,left(t1.order_create_date ,10) order_data,t1.order_Price_Type,(case when t1.order_Price_Type ='早餐' and order_type='0' then '工作餐' when t1.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types,t2.FeePlace from tab_order_info t1 LEFT JOIN tab_user_info t2 on t1.card_no = t2.card_no ";
+                                    wherestr = "select t3.Dept_Name,t2.dept_ID,t2.usr_name,left(t1.order_date ,10) order_data,t1.order_Price_Type,(case when t1.order_Price_Type ='早餐' and order_type='0' then '工作餐' when t1.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when t1.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when t1.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types,t2.FeePlace from tab_order_info t1 JOIN tab_user_info t2 on t1.card_no = t2.card_no LEFT JOIN tbdeptinfo t3 on t2.dept_ID = t3.Dept_Id";
                                     execDt = MysqlHelper.ToDataTablePager(out recordCount, wherestr, page, 10);
                                     resjobj.Add("result", JToken.FromObject("ok"));
                                     resjobj.Add("execDt", JToken.FromObject(execDt));
@@ -484,7 +653,7 @@ namespace NewJMConsume
                                 }
                                 if (FEE_dept != "")
                                 {
-                                    wherestr += "and t2.dept_ID like '%" + FEE_dept + "%'";
+                                    wherestr += "and t3.Dept_Name like '%" + FEE_dept + "%'";
                                 }
                                 if (FEE_dev_no != "")
                                 {
@@ -535,7 +704,7 @@ namespace NewJMConsume
                                 }
                                 if (wherestr != "")
                                 {
-                                    check_str = "select t1.order_id,t1.dev_no,t2.usr_name,t1.dev_Ip,t2.phone_no,t2.dept_ID,t1.order_Price_Name,t1.order_Price_Type,t1.order_money,t1.order_create_date from tab_tran_info t1 LEFT JOIN tab_user_info t2 on t1.card_no = t2.card_no where 1=1 " + wherestr;
+                                    check_str = "select t1.order_id,t1.dev_no,t2.usr_name,t1.dev_Ip,t2.phone_no,t3.Dept_Name,t2.dept_ID,t1.order_Price_Name,t1.order_Price_Type,t1.order_money,t1.order_create_date from tab_tran_info t1 LEFT JOIN tab_user_info t2 on t1.card_no = t2.card_no LEFT JOIN tbdeptinfo t3  on t2.dept_ID = t3.Dept_Id  where 1=1 " + wherestr;
                                     execDt = MysqlHelper.ToDataTablePager(out recordCount, check_str, page, 10);
                                     resjobj.Add("result", JToken.FromObject("ok"));
                                     resjobj.Add("execDt", JToken.FromObject(execDt));
@@ -544,7 +713,7 @@ namespace NewJMConsume
                                 else
                                 {
 
-                                    wherestr = "select t1.order_id,t1.dev_no,t2.usr_name,t1.dev_Ip,t2.phone_no,t2.dept_ID,t1.order_Price_Name,t1.order_Price_Type,t1.order_money,t1.order_create_date from tab_tran_info t1 LEFT JOIN tab_user_info t2 on t1.card_no = t2.card_no";
+                                    wherestr = "select t1.order_id,t1.dev_no,t2.usr_name,t1.dev_Ip,t2.phone_no,t3.Dept_Name,t2.dept_ID,t1.order_Price_Name,t1.order_Price_Type,t1.order_money,t1.order_create_date from tab_tran_info t1 LEFT JOIN tab_user_info t2 on t1.card_no = t2.card_no LEFT JOIN tbdeptinfo t3  on t2.dept_ID = t3.Dept_Id ";
                                     execDt = MysqlHelper.ToDataTablePager(out recordCount, wherestr, page, 10);
                                     resjobj.Add("result", JToken.FromObject("ok"));
                                     resjobj.Add("execDt", JToken.FromObject(execDt));
@@ -568,11 +737,11 @@ namespace NewJMConsume
                                 }
                                 if (name_not != "")
                                 {
-                                    wherestr += "and b.usr_no = '" + name_not + "'";
+                                    wherestr += "and c.usr_name like '%" + name_not + "%'";
                                 }
                                 if (dept_not != "")
                                 {
-                                    wherestr += "and c.dept_ID = '" + dept_not + "'";
+                                    wherestr += "and t3.Dept_Name like '%" + dept_not + "%'";
                                 }
                                 if (price_type_not != "")
                                 {
@@ -632,7 +801,7 @@ namespace NewJMConsume
                                 }
                                 if (wherestr != "" && beg_not != "" && end_not != "")
                                 {
-                                    check_str = "select left(b.order_date,10) order_date, b.usr_no, b.card_no , c.dept_ID , b.order_Price_Type,count(*) order_not_count,(case when b.order_Price_Type ='早餐' and order_type='0' then '工作餐' when b.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types from tab_order_info b LEFT JOIN  tab_user_info c on b.card_no = c.card_no where 1=1 " + wherestr + " and not EXISTS(select * from tab_tran_info where 1=1 " + time_str + " and order_Price_Name ='定额消费' and b.card_no =card_no and b.order_Price_Type = order_Price_Type and left(b.order_date,10) =left(order_date,10)) GROUP BY b.usr_no,b.card_no,b.order_Price_Type,b.order_date,b.order_type,c.dept_ID";
+                                    check_str = "select left(b.order_date,10) order_date, b.usr_no, b.card_no ,c.usr_name,c.dept_ID ,t3.Dept_Name, b.order_Price_Type,count(*) order_not_count,(case when b.order_Price_Type ='早餐' and order_type='0' then '工作餐' when b.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types from tab_order_info b LEFT JOIN  tab_user_info c on b.card_no = c.card_no LEFT JOIN tbdeptinfo t3 on c.dept_ID = t3.Dept_Id where 1=1 " + wherestr + " and not EXISTS(select * from tab_tran_info where 1=1 " + time_str + " and order_Price_Name ='定额消费' and b.card_no =card_no and b.order_Price_Type = order_Price_Type and left(b.order_date,10) =left(order_date,10)) GROUP BY b.usr_no,b.card_no,b.order_Price_Type,b.order_date,b.order_type,c.dept_ID";
                                     execDt = MysqlHelper.ToDataTablePager(out recordCount, check_str, page, 10);
                                     resjobj.Add("result", JToken.FromObject("ok"));
                                     resjobj.Add("execDt", JToken.FromObject(execDt));
@@ -641,7 +810,7 @@ namespace NewJMConsume
                                 }
                                 if (beg_not == "" || end_not == "" && wherestr != "")
                                 {
-                                    check_str = "select left(b.order_date,10) order_date, b.usr_no, b.card_no , c.dept_ID , b.order_Price_Type,count(*) order_not_count,(case when b.order_Price_Type ='早餐' and order_type='0' then '工作餐' when b.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types from tab_order_info b LEFT JOIN  tab_user_info c on b.card_no = c.card_no where 1=1 " + wherestr + " and not EXISTS(select * from tab_tran_info where order_Price_Name ='定额消费' and b.card_no =card_no and b.order_Price_Type = order_Price_Type and left(b.order_date,10) =left(order_date,10)) GROUP BY b.usr_no,b.card_no,b.order_Price_Type,b.order_date,b.order_type,c.dept_ID";
+                                    check_str = "select left(b.order_date,10) order_date, b.usr_no, b.card_no ,c.usr_name,c.dept_ID ,t3.Dept_Name, b.order_Price_Type,count(*) order_not_count,(case when b.order_Price_Type ='早餐' and order_type='0' then '工作餐' when b.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types from tab_order_info b LEFT JOIN  tab_user_info c on b.card_no = c.card_no LEFT JOIN tbdeptinfo t3 on c.dept_ID = t3.Dept_Id where 1=1 " + wherestr + " and not EXISTS(select * from tab_tran_info where order_Price_Name ='定额消费' and b.card_no =card_no and b.order_Price_Type = order_Price_Type and left(b.order_date,10) =left(order_date,10)) GROUP BY b.usr_no,b.card_no,b.order_Price_Type,b.order_date,b.order_type,c.dept_ID";
                                     execDt = MysqlHelper.ToDataTablePager(out recordCount, check_str, page, 10);
                                     resjobj.Add("result", JToken.FromObject("ok"));
                                     resjobj.Add("execDt", JToken.FromObject(execDt));
@@ -652,7 +821,7 @@ namespace NewJMConsume
                                 {
 
 
-                                    wherestr = @"select left(b.order_date,10) order_date, b.usr_no, b.card_no , c.dept_ID , b.order_Price_Type,count(*) order_not_count,(case when b.order_Price_Type ='早餐' and order_type='0' then '工作餐' when b.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types from tab_order_info b LEFT JOIN  tab_user_info c on b.card_no = c.card_no where not EXISTS(select * from tab_tran_info where order_Price_Name ='定额消费' and b.card_no =card_no and b.order_Price_Type = order_Price_Type and left(b.order_date,10) =left(order_date,10)) GROUP BY b.usr_no,b.card_no,b.order_Price_Type,b.order_date,b.order_type,c.dept_ID";
+                                    wherestr = @"select left(b.order_date,10) order_date, b.usr_no, b.card_no ,c.usr_name,c.dept_ID ,t3.Dept_Name, b.order_Price_Type,count(*) order_not_count,(case when b.order_Price_Type ='早餐' and order_type='0' then '工作餐' when b.order_Price_Type ='早餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='午餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='午餐' and order_type ='1' then '自助餐' when b.order_Price_Type ='晚餐' and order_type ='0' then '工作餐' when b.order_Price_Type ='晚餐' and order_type ='1' then '自助餐' ELSE '其他' end) meal_types from tab_order_info b LEFT JOIN  tab_user_info c on b.card_no = c.card_no LEFT JOIN tbdeptinfo t3 on c.dept_ID = t3.Dept_Id where not EXISTS(select * from tab_tran_info where order_Price_Name ='定额消费' and b.card_no =card_no and b.order_Price_Type = order_Price_Type and left(b.order_date,10) =left(order_date,10)) GROUP BY b.usr_no,b.card_no,b.order_Price_Type,b.order_date,b.order_type,c.dept_ID";
                                     execDt = MysqlHelper.ToDataTablePager(out recordCount, wherestr, page, 10);
                                     resjobj.Add("result", JToken.FromObject("ok"));
                                     resjobj.Add("execDt", JToken.FromObject(execDt));
@@ -673,11 +842,11 @@ namespace NewJMConsume
                                 }
                                 if (name_order != "")
                                 {
-                                    wherestr += "and t2.usr_name = '%" + name_order + "%'";
+                                    wherestr += "and t2.usr_name like '%" + name_order + "%'";
                                 }
                                 if (dept_order != "")
                                 {
-                                    wherestr += "and t2.dept_ID = '" + dept_order + "'";
+                                    wherestr += "and t4.dept_Name like '%" + dept_order + "%'";
                                 }
                                 if (btn_type != "")
                                 {
@@ -726,7 +895,8 @@ ORDER BY t1.order_date desc";
                                 if (wherestr != "")
                                 {
                                     //check_str = "SELECT left(t1.order_date,10) order_date,t1.usr_no,t1.card_no,t2.dept_ID,count(case when t1.order_Price_Type ='早餐'  then 1 ELSE NULL end) bra_order,COUNT(case when t3.order_Price_Type ='早餐' then 1 else Null end) bra_jiu,count(case when t1.order_Price_Type ='午餐'  then 1 ELSE NULL end) lun_order,COUNT(case when t3.order_Price_Type ='午餐' then 1 else Null end) lun_jiu,count(case when t1.order_Price_Type ='晚餐'  then 1 ELSE NULL end) din_order,COUNT(case when t3.order_Price_Type ='晚餐' then 1 else Null end) din_jiu from tab_order_info t1 LEFT JOIN  tab_user_info t2 on t1.card_no = t2.card_no LEFT JOIN tab_tran_info t3 ON t1.card_no = t3.card_no and t1.order_Price_type = t3.order_price_Type and left(t1.order_date,10) = left(t3.order_date,10) where 1=1 " + wherestr + " GROUP BY t1.order_date DESC,t1.usr_no,t1.card_no,t2.dept_ID ";
-                                    check_str = "select left(t1.order_date,10) order_date,t2.usr_name,t2.card_no,t2.dept_ID,t1.早餐订餐 as bra_order,t3.早餐就餐 as bra_jiu,t1.午餐订餐 as lun_order,t3.午餐就餐 as lun_jiu,t1.晚餐订餐 din_order,t3.晚餐就餐 as din_jiu from (select count(case when order_Price_Type ='早餐'  then 1 ELSE NULL end) 早餐订餐,count(case when order_Price_Type ='午餐'  then 1 ELSE NULL end) 午餐订餐,count(case when order_Price_Type ='晚餐'  then 1 ELSE NULL end) 晚餐订餐,order_Price_Type,card_no,order_date from tab_order_info) as t1,(select * from tab_user_info) as t2,(select COUNT(case when order_Price_Type ='早餐' then 1 else Null end) 早餐就餐,COUNT(case when order_Price_Type ='午餐' then 1 else Null end) 午餐就餐,COUNT(case when order_Price_Type ='晚餐' then 1 else Null end) 晚餐就餐,order_Price_Type,card_no,order_date from tab_tran_info ) as t3 WHERE t1.card_no = t2.card_no and t2.card_no =t3.card_no and t1.order_Price_type = t3.order_price_Type and left(t1.order_date,10) = left(t3.order_date,10) where 1=1 " + wherestr + " ORDER BY t1.order_date desc";
+                                    //check_str = "select left(t1.order_date,10) order_date,t2.usr_name,t2.card_no,t2.dept_ID,t1.早餐订餐 as bra_order,t3.早餐就餐 as bra_jiu,t1.午餐订餐 as lun_order,t3.午餐就餐 as lun_jiu,t1.晚餐订餐 din_order,t3.晚餐就餐 as din_jiu from (select count(case when order_Price_Type ='早餐'  then 1 ELSE NULL end) 早餐订餐,count(case when order_Price_Type ='午餐'  then 1 ELSE NULL end) 午餐订餐,count(case when order_Price_Type ='晚餐'  then 1 ELSE NULL end) 晚餐订餐,order_Price_Type,card_no,order_date from tab_order_info) as t1,(select * from tab_user_info) as t2,(select COUNT(case when order_Price_Type ='早餐' then 1 else Null end) 早餐就餐,COUNT(case when order_Price_Type ='午餐' then 1 else Null end) 午餐就餐,COUNT(case when order_Price_Type ='晚餐' then 1 else Null end) 晚餐就餐,order_Price_Type,card_no,order_date from tab_tran_info ) as t3 WHERE t1.card_no = t2.card_no and t2.card_no =t3.card_no and t1.order_Price_type = t3.order_price_Type and left(t1.order_date,10) = left(t3.order_date,10) where 1=1 " + wherestr + " ORDER BY t1.order_date desc";
+                                    check_str = "select left(t1.order_date,10) order_date,t2.usr_name,t2.card_no,t4.dept_Name,t1.早餐订餐 as bra_order,t3.早餐就餐 as bra_jiu,t1.午餐订餐 as lun_order,t3.午餐就餐 as lun_jiu,t1.晚餐订餐 din_order,t3.晚餐就餐 as din_jiu from (select count(case when order_Price_Type = '早餐'  then 1 ELSE NULL end) 早餐订餐,count(case when order_Price_Type = '午餐'  then 1 ELSE NULL end) 午餐订餐,count(case when order_Price_Type = '晚餐'  then 1 ELSE NULL end) 晚餐订餐,order_Price_Type,card_no,order_date from tab_order_info GROUP BY order_Price_Type, card_no, order_date ) as t1,(select * from tab_user_info) as t2,(select COUNT(case when order_Price_Type = '早餐' then 1 else Null end) 早餐就餐,COUNT(case when order_Price_Type = '午餐' then 1 else Null end) 午餐就餐,COUNT(case when order_Price_Type = '晚餐' then 1 else Null end) 晚餐就餐,order_Price_Type,card_no,order_date from tab_tran_info GROUP BY order_Price_Type, card_no, order_date  ) as t3,tbdeptinfo as t4 WHERE 1 = 1 "+wherestr+" and t1.card_no = t2.card_no and t2.card_no = t3.card_no and t2.dept_ID = t4.dept_Id and t1.order_Price_type = t3.order_price_Type and left(t1.order_date,10) = left(t3.order_date, 10) ORDER BY t1.order_date desc ";
                                     execDt = MysqlHelper.ToDataTablePager(out recordCount, check_str, page, 10);
                                     resjobj.Add("result", JToken.FromObject("ok"));
                                     resjobj.Add("execDt", JToken.FromObject(execDt));

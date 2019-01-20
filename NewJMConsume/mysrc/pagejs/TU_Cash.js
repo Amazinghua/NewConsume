@@ -1,6 +1,6 @@
 ﻿var now_page = 1;
 dic_head = {
-    head: '<input type="Checkbox" id="all"/>',
+    head: '<input type="Checkbox" id="all" onclick="allcheck(this,1)"/>',
     Company: "公司",
     usr_no: "帐号",
     usr_name: "姓名",
@@ -15,6 +15,144 @@ dic_head2 = {
     card_no: "卡号",
     Dept_Name: "部门",
     phone_no: "号码"
+}
+//模态框中的表
+dic_head3 = {
+    usr_name: "姓名",
+    card_no: "卡号",
+    phone_no: "号码",
+    add_money_now:"实充金额(元)"
+}
+//部门充值模态框
+dic_head4 = {
+    head: '<input type="Checkbox" onclick="allcheck(this,2)"/>',
+    usr_name: "姓名",
+    Dept_Name:"部门",
+    card_no: "卡号",
+    phone_no: "手机号"
+}
+//部门充值中二次确认
+function showAll() {
+    var obj = new Object();
+    var arr = new Array();
+    var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+    var changedNodes = zTree.getCheckedNodes();
+    for (var i = 0; i < changedNodes.length; i++) {
+        var treeNode = changedNodes[i];
+        arr.push(treeNode.id);
+    }
+    obj.checkedId = arr;
+    var json = obj;
+    //return json.checkedId.toString();
+    if (arr.length == 0) {
+        alert("请勾选部门!");
+        return;
+    }
+    var money = $("#add_money").val();
+    if (money == 0 || money == "") {
+        alert("请输入金额");
+        return;
+    }
+    var jsonObj = {
+        type: "select_all_department",
+        money: money,
+        user_checked: json.checkedId.toString()
+    }
+    var postStr = JSON.stringify(jsonObj);
+    mj_ajax("MainBack.ashx", "json", postStr, callBack_dept_select_user);
+}
+function callBack_dept_select_user(data) {
+    if (data.result == "success") {
+        $("#department_table").empty();
+        var table = document.getElementById("department_table");
+        table.appendChild(generateTableThead(dic_head4))
+        if (data.show_dt.length != 0) {
+            generateTable_dept(data.show_dt, dic_head4, table);
+        }
+        //bindpaginator(data.numcount);
+
+    }
+    $('#myModal04').modal('show');
+}
+
+//按部门充值
+function hehe() {
+    var obj = new Object();
+    var arr = new Array();
+    var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+    var changedNodes = zTree.getCheckedNodes();
+    for (var i = 0; i < changedNodes.length; i++) {
+        var treeNode = changedNodes[i];
+        arr.push(treeNode.id);
+    }
+    obj.checkedId = arr;
+    var json = obj;
+    //return json.checkedId.toString();
+    if (arr.length == 0) {
+        alert("请勾选部门!");
+        return;
+    }
+    var money = $("#add_money").val();
+    if (money == 0 || money == "") {
+        alert("请输入金额");
+        return;
+    }
+    var jsonObj = {
+        type: "department_charge",
+        //cardno: cardno,
+        //name: name,
+        method:"部门充值",
+        money: money,
+        memo: "test",
+        usrno: "admin",
+        user_checked: json.checkedId.toString()
+        //cash_phone: cash_phone
+    }
+    var postStr = JSON.stringify(jsonObj);
+    mj_ajax("MainBack.ashx", "json", postStr, callBack_dept_add_money);
+}
+function callBack_dept_add_money(data) {
+    if (data.result == "success") {
+        $("#department_table").empty();
+        var table = document.getElementById("department_table");
+        table.appendChild(generateTableThead(dic_head3))
+        if (data.department_dt.length != 0) {
+            generateTable(data.department_dt, dic_head3, table);
+        }
+        //bindpaginator(data.numcount);
+
+    }
+    $('#myModal04').modal('show');
+}
+//按部门充值新
+function determin_recharge() {
+    var money = $("#add_money").val();
+    var jsonObj = {
+        type: "recharge_self",
+        //cardno: cardno,
+        //name: name,
+        method: "部门充值",
+        money: money,
+        usrno: "admin",
+        user_checked: getChecked()
+        //cash_phone: cash_phone
+    }
+    var postStr = JSON.stringify(jsonObj);
+    mj_ajax("MainBack.ashx", "json", postStr, callBack_determin_recharge);
+}
+function callBack_determin_recharge(data) {
+    if (data.result == "success") {
+        $("#self_table").empty();
+        var table = document.getElementById("self_table");
+        table.appendChild(generateTableThead(dic_head3))
+        if (data.self_dt.length != 0) {
+            generateTable(data.self_dt, dic_head3, table);
+        }
+        //bindpaginator(data.numcount);
+
+    }
+    $("#myModalLabel05").html("充值成功人员明细如下");
+    $('#myModal05').modal('show');
 }
 
 //个人充值
@@ -48,15 +186,39 @@ function callBack_addRole(data) {
     $("#money").val("");
     $("#memo").val("");
     //$("#cash_phone").val("");
-    alert(data.msg);
     $("#table").empty();
     $("#pageLimit").empty();
     // location.reload();
+    if (data.result == "success") {
+        $("#self_table").empty();
+        var table = document.getElementById("self_table");
+        table.appendChild(generateTableThead(dic_head3))
+        if (data.self_dt.length != 0) {
+            generateTable(data.self_dt, dic_head3, table);
+        }
+        //bindpaginator(data.numcount);
+
+    }
+    $("#myModalLabel05").html("个人充值成功人员明细");
+    $('#myModal05').modal('show');
+
 }
 
 //展示模态框-确认充值
 function showAdd() {
-    $("#myModalLabel02").html("新增人员");
+    var money = $("#money").val();
+    if (money == 0 || money == "") {
+        alert("请输入金额!");
+        return;
+    }
+    if ($("input[name='self']:checked").length == 0) {
+        alert("请至少勾选一位人员!");
+        return;
+    }
+
+    var table = document.getElementById("print_body");
+    table.innerHTML = "";
+    $("#myModalLabel02").html("充值信息二次确认");
     //$("#addusrno").val("");
     //$("#addusrname").val("");
     //$("#addphone").val("");
@@ -66,16 +228,39 @@ function showAdd() {
     //var cardno = document.getElementById("cardno").value;
     //var account = document.getElementById("name").value;
     //var phone = document.getElementById("cash_phone").value;
-    var type = document.getElementById("method").value;
+
+    //var type = document.getElementById("method").value;
     var money = document.getElementById("money").value;
-    var memo = document.getElementById("memo").value;
+    //var memo = document.getElementById("memo").value;
+    var tb = document.getElementById("table");
+    //alert(tb.rows[1].cells[2].innerText);
+    var row;
+    var cell;
+    var chk;
+    for (var i = tb.rows.length - 1; i > 0; i--) {
+        cell = tb.rows[i].cells[0];
+        chk = cell.getElementsByTagName("input")[0];
+        if (chk.checked) {
+            var tr = document.createElement("tr");
+            for (var j = 3; j < 6; j++) {
+                var td = document.createElement("th");
+                td.innerHTML = tb.rows[i].cells[j].innerText;
+                tr.appendChild(td);
+            }
+            table.appendChild(tr);
+        }
+    }
+
+    document.getElementById("print_footer").innerHTML = "<h3>提示:共" + table.rows.length + "人,本次充值金额 " + money + "元,共计金额" +table.rows.length * money + "元<h3/>";
+    
+
     $('#myModal02').modal('show');
     // $('#card').html(cardno);
     //$('#account').html(account);
     //$('#phone').html(phone);
-    $('#theMoney').html(money);
-    $('#newMoney').html(money);
-    $('#remark').html(memo);
+    //$('#theMoney').html(money);
+    //$('#newMoney').html(money);
+    //$('#remark').html(memo);
 
 }
 function test() {
@@ -128,6 +313,14 @@ function callBack_check_user(data) {
         //$("#cash_phone").val("");
     }
 }
+//新建部门表
+function generateTable_dept(data, dic, table) {
+    var tbody = document.createElement("tbody");
+    for (var i = 0; i < data.length; i++) {
+        tbody.appendChild(generateTableRow_dept(data[i], dic, i));
+    }
+    table.appendChild(tbody);
+}
 //新建表
 function generateTable(data, dic, table) {
     var tbody = document.createElement("tbody");
@@ -159,7 +352,29 @@ function generateTableRow(data, dic, i) {
         var td = document.createElement("td");
         if (index == "head") {
             //td.innerHTML = "<input name='" + data[index] + "'type='checkbox'/>";
-            td.innerHTML = '<input type="checkbox"/>';
+            td.innerHTML = '<input type="checkbox" name ="self"/>';
+            //td.setAttribute("value", data[ust_ID]);
+        } else {
+            td.innerHTML = data[index];
+        }
+        tr.appendChild(td);
+
+    }
+    //var td2 = document.createElement("td");
+    //td2.innerHTML = checkStatus(data["ust_ID"]);
+    //tr.appendChild(td2);
+
+    return tr;
+}
+//按部门充值新建一行
+function generateTableRow_dept(data, dic, i) {
+    var tr = document.createElement("tr");
+    tr.setAttribute("name", data["ust_ID"]);
+    for (index in dic) {
+        var td = document.createElement("td");
+        if (index == "head") {
+            //td.innerHTML = "<input name='" + data[index] + "'type='checkbox'/>";
+            td.innerHTML = '<input type="checkbox" name ="dept"/>';
             //td.setAttribute("value", data[ust_ID]);
         } else {
             td.innerHTML = data[index];
@@ -198,6 +413,7 @@ function bindpaginator(tatal) {
     });
 
 }
+//
 function getChecked() {
     var obj = new Object();
     var arr = new Array();
@@ -217,6 +433,19 @@ function getChecked() {
     var json = obj; //JSON.stringify(obj);
     console.log(json.CheckedCode.toString());
     return json.CheckedCode.toString();
+}
+
+//勾选事件
+function zTreeOnCheck() {
+
+    var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+    var changedNodes = zTree.getCheckedNodes();
+    for (var i = 0; i < changedNodes.length; i++) {
+        var treeNode = changedNodes[i];
+        // console.log((treeNode ? treeNode.name : "root") + "checked " + (treeNode.checked ? "true" : "false"));
+        console.log(treeNode.id);
+    }
+    //alert(changedNodes.length);
 }
 
 function load_company() {
@@ -335,7 +564,7 @@ function callBack_load(data) {
 }
 function setCheck() {
     var zTree = $.fn.zTree.getZTreeObj("treeDemo"),
-        type = { "Y": "ps", "N": "ps" };
+        type = { "Y": "", "N": "" };
     zTree.setting.check.chkboxType = type;
 
 }
@@ -371,16 +600,7 @@ function zTreeOnRename(event, treeId, treeNode, isCancel) {
 
 
 }
-//勾选事件
-function zTreeOnCheck() {
 
-    var zTree = $.fn.zTree.getZTreeObj("treeDemo");
-    var changedNodes = zTree.getCheckedNodes();
-    for (var i = 0; i < changedNodes.length; i++) {
-        var treeNode = changedNodes[i];
-        console.log((treeNode ? treeNode.name : "root") + "checked " + (treeNode.checked ? "true" : "false"));
-    }
-}
 
 
 
@@ -452,8 +672,8 @@ function beforeEditName(treeId, treeNode) {
     return false;
 }
 function zTreeOnClick(event, treeId, treeNode) {
-    alert(treeNode.id + ", " + treeNode.name);
-    load_user(true, 1, treeNode.id);
+    //alert(treeNode.id + ", " + treeNode.name);
+    //load_user(true, 1, treeNode.id);
 };
 function load_user(isfirst, pc, id) {
     //var level = $("#level").val();
@@ -488,14 +708,14 @@ function callBack_table(data) {
         $("#pageLimit").empty();
         if (data.execDt.length != 0) {
             generateTable2(data.execDt, dic_head2);
-            bindpaginator2(data.numcount);
+            bindpaginator2(data.numcount,data.numid);
         } else {
 
         }
 
     }
 }
-function bindpaginator2(tatal) {
+function bindpaginator2(tatal,id) {
     var tp = Math.ceil(tatal / 10)
     $('#pageLimit2').bootstrapPaginator({
         currentPage: now_page,//当前的请求页面。
@@ -514,24 +734,39 @@ function bindpaginator2(tatal) {
             }
         },
         onPageClicked: function (event, originalEvent, type, page) {
-            load_user(false, page);
+            // load_user(false, page);
+            load_user(false, page, id);
         }
     });
 
 }
 //全选
-function allcheck(a) {
+function allcheck(a,names) {
     //var userids = this.checked;
     //获取name=box的复选框 遍历输出复选框
-    if (a.checked == true) {
-        $("input[type=checkbox]").each(function () {
-            this.checked = true;
+    if (names == 1) {
+        if (a.checked == true) {
+            $("input[name ='self']").each(function () {
+                this.checked = true;
 
-        });
-    } else {
-        $("input[type=checkbox]").each(function () {
-            this.checked = false;
+            });
+        } else {
+            $("input[name='self']").each(function () {
+                this.checked = false;
 
-        });
+            });
+        }
+    } else if (names == 2) {
+        if (a.checked == true) {
+            $("input[name ='dept']").each(function () {
+                this.checked = true;
+
+            });
+        } else {
+            $("input[name ='dept']").each(function () {
+                this.checked = false;
+
+            });
+        }
     }
 }

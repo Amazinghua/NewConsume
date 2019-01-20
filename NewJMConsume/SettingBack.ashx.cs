@@ -244,6 +244,7 @@ namespace NewJMConsume
                                 resjobj.Add("result", JToken.FromObject("ok"));
                                 resjobj.Add("execDt", JToken.FromObject(execDt));
                                 resjobj.Add("numcount", JToken.FromObject(recordCount));
+                                resjobj.Add("numid", JToken.FromObject(id));
                                 #endregion
                                 break;
 
@@ -310,11 +311,7 @@ namespace NewJMConsume
                                 #region
                                 if (keyword != "")
                                 {
-                                    wherestr += "and (usr_no like '%" + keyword + "%' or usr_name like '%" + keyword + "%' or card_no like '%" + keyword + "%'  or phone_no like '%" + keyword + "%' or memo like '%" + keyword + "%'or Company like '%" + keyword + "%')";
-                                }
-                                if (id != "")
-                                {
-                                    wherestr += " and ust_ID = '" + id + "'";
+                                    wherestr += "where t1.usr_no like '%" + keyword + "%' or t1.usr_name like '%" + keyword + "%' or t1.card_no like '%" + keyword + "%'  or t1.phone_no like '%" + keyword + "%' or t2.Dept_Name like '%" + keyword + "%'or t1.Company like '%" + keyword + "%'";
                                 }
                                 if(btn_type != "")
                                 {
@@ -344,10 +341,23 @@ namespace NewJMConsume
                                         context.Response.End();
                                     }
                                 }
-                                execDt = MysqlHelper.getPager(out recordCount, "", "tab_user_info", wherestr, "ust_ID", page, 10);
-                                resjobj.Add("result", JToken.FromObject("ok"));
-                                resjobj.Add("execDt", JToken.FromObject(execDt));
-                                resjobj.Add("numcount", JToken.FromObject(recordCount));
+                                if(wherestr != "")
+                                {
+                                    check_str = "select t1.ust_ID,t1.Company,t1.usr_no,t1.usr_name,t2.Dept_Name,t1.card_no,t1.card_state,t1.phone_no,t1.memo,t1.FeeResource,t1.FeePlace from tab_user_info t1 left JOIN tbdeptinfo t2 on t1.dept_ID =t2.Dept_Id  " + wherestr;
+                                    execDt = MysqlHelper.ToDataTablePager(out recordCount, check_str, page, 10);
+                                    resjobj.Add("result", JToken.FromObject("ok"));
+                                    resjobj.Add("execDt", JToken.FromObject(execDt));
+                                    resjobj.Add("numcount", JToken.FromObject(recordCount));
+                                }
+                                else
+                                {
+                                    wherestr = "select t1.ust_ID,t1.Company,t1.usr_no,t1.usr_name,t2.Dept_Name,t1.card_no,t1.card_state,t1.phone_no,t1.memo,t1.FeeResource,t1.FeePlace from tab_user_info t1 left JOIN tbdeptinfo t2 on t1.dept_ID =t2.Dept_Id ";
+                                    execDt = MysqlHelper.ToDataTablePager(out recordCount, wherestr, page, 10);
+                                    resjobj.Add("result", JToken.FromObject("ok"));
+                                    resjobj.Add("execDt", JToken.FromObject(execDt));
+                                    resjobj.Add("numcount", JToken.FromObject(recordCount));
+                                }
+                                //execDt = MysqlHelper.getPager(out recordCount, "", "tab_user_info", wherestr, "ust_ID", page, 10);
                                 #endregion
                                 break;
                             case "set_staff_delete"://删除人员
@@ -405,6 +415,13 @@ namespace NewJMConsume
                                     resjobj.Add("msg", JToken.FromObject("更新失败！"));
                                 }
                                 #endregion
+                                break;
+                            case "set_staff_check"://查询单个人员基本信息
+                                wherestr = "select t1.ust_ID,t1.Company,t1.usr_no,t1.usr_name,t2.Dept_Name,t1.card_no,t1.card_state,t1.phone_no,t1.memo,t1.FeeResource,t1.FeePlace from tab_user_info t1 left JOIN tbdeptinfo t2 on t1.dept_ID =t2.Dept_Id where t1.ust_ID ='"+id+"'";
+                                execDt = MysqlHelper.ToDataTablePager(out recordCount, wherestr, page, 10);
+                                resjobj.Add("result", JToken.FromObject("ok"));
+                                resjobj.Add("execDt", JToken.FromObject(execDt));
+                                resjobj.Add("numcount", JToken.FromObject(recordCount));
                                 break;
 
 

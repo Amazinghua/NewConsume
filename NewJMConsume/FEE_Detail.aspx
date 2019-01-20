@@ -53,8 +53,11 @@
                                                 $('#sandbox-container input').datetimepicker({
                                                     minView: "month",
                                                     language: 'zh-CN',
-                                                    format: "yyyy-mm-dd"
-                                                })
+                                                    format: "yyyy-mm-dd",
+                                                    autoclose: true
+                                                }).on("click", function () {
+                                                    $("#sandbox-container input").datetimepicker("setEndDate", $("#sandbox-container02 input").val())
+                                                });
                                             </script>
                                         </div>
                                     </td>
@@ -71,8 +74,11 @@
                                                 $('#sandbox-container02 input').datetimepicker({
                                                     minView: "month",
                                                     language: 'zh-CN',
-                                                    format: "yyyy-mm-dd"
-                                                })
+                                                    format: "yyyy-mm-dd",
+                                                    autoclose: true
+                                                }).on("click", function () {
+                                                    $("#sandbox-container02 input").datetimepicker("setStartDate", $("#sandbox-container input").val())
+                                                });
                                             </script>
                                         </div>
                                     </td>
@@ -102,7 +108,7 @@
                                     <!--部门-->
                                     <td class="form-inline">
                                         <div class="form-group">
-                                            <input type="button" class="btn btn-primary" onclick="load(true,1)" value="查 询" />
+                                            <input type="button" class="btn btn-primary" onclick="load(true, 1)" value="查 询" />
                                         </div>
                                     </td>
                                 </tr>
@@ -113,7 +119,7 @@
                                             <label>结算单位</label>
                                             <select class="form-control" id="FEE_dev_no" data-width="auto">
                                                 <option value="">全部</option>
-                                                <option value ="1">1号</option>
+                                                <option value="1">1号</option>
                                                 <option value="2">2号</option>
                                             </select>
                                         </div>
@@ -139,7 +145,7 @@
                                     <td class="form-inline">
                                         <div class="form-group">
                                             <label>消费地点</label>
-<%--                                            <select class="selectpicker" id="FEE_place" data-width="auto">
+                                            <%--                                            <select class="selectpicker" id="FEE_place" data-width="auto">
                                                 <option value="">全部</option>
                                             </select>--%>
                                             <input type="text" id="FEE_place" class="form-control" />

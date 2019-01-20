@@ -3,7 +3,7 @@ dic_head = {
     order_date: "日期",
     usr_name: "姓名",
     card_no: "卡号",
-    dept_ID: "部门名称",
+    dept_Name: "部门名称",
     bra_order: "早餐订餐",
     bra_jiu: "早餐就餐",
     lun_order: "午餐订餐",
@@ -21,6 +21,14 @@ $(document).ready(function () {
 function load(isfirst, pc) {
     var beg_order = $("#beg_order").val();
     var end_order = $("#end_order").val();
+    if (beg_order != "" && end_order == "") {
+        alert("请输入结束时间!");
+        return;
+    }
+    if (beg_order == "" && end_order != "") {
+        alert("请输入起始时间!");
+        return;
+    }
     var name_order = $("#name_order").val();
     var dept_ordder = $("#dept_order").val();
     var jsonObj = {

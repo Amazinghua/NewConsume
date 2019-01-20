@@ -161,15 +161,6 @@
                         <div class="form-group">
                             <input type="button" class="btn btn-primary" onclick="showTeam()" value="批量充值" />
                         </div>
-                        <%--                        <div class="form-group">
-                            <label>备注:</label>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" class="form-control" />
-                        </div>
-                        <div class="form-group">
-                            <input type="button" class="btn btn-primary" value="提交" />
-                        </div>--%>
                     </div>
                 </div>
             </div>
@@ -222,7 +213,7 @@
                             <input type="text" onkeyup="value=value.replace(/[^\d]/g,'')" onblur="value=value.replace(/[^\d]/g,'')" class="form-control" id="add_money" placeholder="（元）" />
                         </div>
                         <div class="form-group">
-                            <input type="button" class="btn btn-primary" onclick="add_money_dept()" value="确定充值" />
+                            <input type="button" class="btn btn-primary" value="提交" onclick="showAll()" />
                         </div>
                     </div>
                 </div>
@@ -257,41 +248,33 @@
                 <div class="modal-body">
                     <div class="container-fluid">
                         <div class="row ">
-                            <div id="printing" class="table-d">
+                            <div class="table-d">
                                 <table class="table table-bordered" width="1000px" border="1" cellspacing="0" cellpadding="0">
                                     <thead>
                                         <tr style="border: 2px;">
-                                            <th>卡号</th>
-                                            <th>账号</th>
+                                            <th>姓名</th>
+                                            <th>部门</th>
                                             <th>手机号码</th>
-                                            <th>充值金额(元)</th>
-                                            <th>扣减金额(元)</th>
-                                            <th>实充金额(元)</th>
+<%--                                            <th>充值金额(元)</th>
                                             <th>充值途径</th>
-                                            <th>备注</th>
+                                            <th>备注</th>--%>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr class="info">
-                                            <th id="card"></th>
-                                            <th id="account"></th>
-                                            <th id="phone">asd</th>
-                                            <th id="theMoney"></th>
-                                            <th>0.00</th>
-                                            <th id="newMoney"></th>
-                                            <th>个人充值</th>
-                                            <th id="remark"></th>
-                                        </tr>
+                                    <tbody id ="print_body">
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                        <div class="row">
+                          <div id="print_footer" class="col-lg-offset-6">
+
+                          </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <input type="button" class="btn btn-primary" value="打印凭证" onclick="myPrint(document.getElementById('printing'))" />
-                    <button type="button" class="btn btn-primary" onclick="test()" data-dismiss="modal" id="changeBtn02">确定充值</button>
+                    <button type="button" class="btn btn-primary" onclick="test()" data-dismiss="modal">确定充值</button>
                 </div>
             </div>
         </div>
@@ -319,6 +302,68 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                     <button type="button" class="btn btn-primary" onclick="load(true,1)" data-dismiss="modal" id="changeBtn02">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%--模态框：充值至模态框--%>
+    <div class="modal fade" id="myModal04" tabindex="-1" role="dialog" aria-labelledby="myModelLabel04">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <label class="modal-title" id="myModalLabel04">充值人员确认</label>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="col-lg-12">
+                            <table class="table table-bordered" id="department_table">
+                            </table>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div style="text-align: center">
+                                    <ul id="pageLimit4"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="determin_recharge()" data-dismiss="modal">确定充值</button>
+                    <%--<button type="button" class="btn btn-primary" onclick="load(true,1)" data-dismiss="modal">确定</button>--%>
+                </div>
+            </div>
+        </div>
+    </div>
+        <%--模态框：充值完毕回调--%>
+    <div class="modal fade" id="myModal05" tabindex="-1" role="dialog" aria-labelledby="myModelLabel05">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <label class="modal-title" id="myModalLabel05"></label>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div id="printing" class="col-lg-12 table-d">
+                            <table id="self_table"  class="table table-bordered" width="1000px" border="1" cellspacing="0" cellpadding="0">
+                            </table>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div style="text-align: center">
+                                    <ul id="pageLimit5"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                         <input type="button" class="btn btn-primary" value="打印凭证" onclick="myPrint(document.getElementById('printing'))" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+<%--                    <button type="button" class="btn btn-primary" onclick="determin_recharge()" data-dismiss="modal">确定充值</button>--%>
                 </div>
             </div>
         </div>

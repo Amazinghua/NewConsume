@@ -37,8 +37,11 @@
                                 $('#sandbox-container input').datetimepicker({
                                     minView: "month",
                                     language: 'zh-CN',
-                                    format: "yyyy-mm-dd"
-                                })
+                                    format: "yyyy-mm-dd",
+                                    autoclose: true
+                                }).on("click", function () {
+                                    $("#sandbox-container input").datetimepicker("setEndDate", $("#sandbox-container02 input").val())
+                                });
                             </script>
                         </div>
 
@@ -53,8 +56,11 @@
                                 $('#sandbox-container02 input').datetimepicker({
                                     minView: "month",
                                     language: 'zh-CN',
-                                    format: "yyyy-mm-dd"
-                                })
+                                    format: "yyyy-mm-dd",
+                                    autoclose: true
+                                }).on("click", function () {
+                                    $("#sandbox-container02 input").datetimepicker("setStartDate", $("#sandbox-container input").val())
+                                });
                             </script>
                         </div>
                     </div>
@@ -100,8 +106,8 @@
                                 <div class="form-group">
                                     <input type="button" class="btn btn-primary" value="查询" onclick="load(true, 1)" />
                                 </div>
-                                                                <div class="form-group">
-                                    <input type="button" class="btn btn-primary" value="导 出" onclick="downdetail()"/>
+                                <div class="form-group">
+                                    <input type="button" class="btn btn-primary" value="导 出" onclick="downdetail()" />
                                 </div>
                             </div>
                         </div>

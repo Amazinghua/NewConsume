@@ -142,12 +142,13 @@ function addRole() {
 
     }
     else {
-        alert("不可为空！");
+        alert("请补全相关信息！");
     }
 
 }
 //添加策略回调
 function callBack_addRole(data) {
+    $('#myModal').modal('hide');
     alert(data.msg);
     load(true, 1);
 }

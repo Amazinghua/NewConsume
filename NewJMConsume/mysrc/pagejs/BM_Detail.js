@@ -1,8 +1,8 @@
 ﻿var now_page = 1;
 dic_head = {
-    dept_ID: "部门",
+    Dept_Name: "部门",
     usr_name: "姓名",
-    order_data: "订餐生成日期",
+    order_data: "订餐日期",
     order_Price_Type: "餐次",
     meal_types: "餐类",
     FeePlace: "消费地点"

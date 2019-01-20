@@ -1,0 +1,4 @@
+2019-01-20 14:18:47:	amazinghua	{"text":{"content":"充值提醒:你好！您的饭卡于 </br> 2019/1/20 14:18:47充值1元"},"touser":"amazinghua","toparty":null,"totag":null,"msgtype":"text","agentid":"1000031","safe":"0"}	{"errcode":0,"errmsg":"ok","invaliduser":""}
+2019-01-20 14:19:15:	amazinghua	{"text":{"content":"充值提醒:你好！您的饭卡于 </br> 2019/1/20 14:19:15充值1元"},"touser":"amazinghua","toparty":null,"totag":null,"msgtype":"text","agentid":"1000031","safe":"0"}	{"errcode":0,"errmsg":"ok","invaliduser":""}
+2019-01-20 19:35:12:	amazinghua	{"text":{"content":"充值提醒:你好！您的饭卡于 </br> 2019/1/20 19:35:12充值1元"},"touser":"amazinghua","toparty":null,"totag":null,"msgtype":"text","agentid":"1000031","safe":"0"}	{"errcode":0,"errmsg":"ok","invaliduser":""}
+2019-01-20 19:46:09:	amazinghua	{"text":{"content":"充值提醒:你好！您的饭卡于 </br> 2019/1/20 19:46:09充值1元"},"touser":"amazinghua","toparty":null,"totag":null,"msgtype":"text","agentid":"1000031","safe":"0"}	{"errcode":0,"errmsg":"ok","invaliduser":""}

@@ -5,7 +5,7 @@ dic_head = {
     usr_name: "姓名",
     dev_Ip: "消费地点",
     phone_no: "电话号码",
-    dept_ID: "部门",
+    Dept_Name: "部门",
     order_Price_Name: "类型",
     order_Price_Type:"餐类",
     order_money: "金额",
@@ -53,6 +53,14 @@ function callBack_down_load(data) {
 function load(isfirst, pc) {
     var FEE_btime = $("#FEE_btime").val();
     var FEE_etime = $("#FEE_etime").val();
+    if (FEE_btime != "" && FEE_etime == "") {
+        alert("请输入结束时间!");
+        return;
+    }
+    if (FEE_btime == "" && FEE_etime != "") {
+        alert("请输入起始时间!");
+        return;
+    }
     var FEE_type = $("#FEE_type").val();
     var FEE_dept = $("#FEE_dept").val();
     var FEE_dev_no = $("#FEE_dev_no").val();

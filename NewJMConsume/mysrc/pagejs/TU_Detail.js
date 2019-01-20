@@ -1,45 +1,43 @@
 ﻿var now_page = 1;
 dic_head = {
+    usr_name:"姓名",
     usr_no: "帐号",
-    card_no:"卡号",
+    card_no: "卡号",
     add_money: "充值金额",
-    minus_money: "扣减金额",
-    acc_money: "实充金额",
+    //minus_money: "扣减金额",
+    //acc_money: "实充金额",
     method: "充值途径",
     create_date: "创建时间",
     creator: "创建人",
     ReMark: "备注"
 }
 $(document).ready(function () {
-    load(true, 1);
 })
 
 //加载页面
 function load(isfirst, pc) {
     var btime = $("#btime").val();
     var etime = $("#etime").val();
+    if (btime != "" && etime == "") {
+        alert("请输入结束时间!");
+        return;
+    }
+    if (btime == "" && etime != "") {
+        alert("请输入起始时间!");
+        return;
+    }
     var usrname = $("#usrname").val();
     var card = $("#card").val();//卡号
     var method = $("#method option:selected").val();//充值途径
     var creator = $("#creator").val();//充值人员
     var jsonObj = {
-        type: "load",
-        table: "tab_add_money",
-        time: {
-            name: "create_date",
-            btime: btime,
-            etime: etime
-        },
-        items: {
-            usr_no: usrname,
-            card_no: card,
-            method: method,
-            creator: creator
-        },
-        keyword: {
-            
-        },
-        id: "add_id",
+        type: "TU_detail_load",
+        btime: btime,
+        etime: etime,
+        usr_no: usrname,
+        card_no: card,
+        method: method,
+        creator: creator,
         pc: pc
     }
     if (isfirst) {
@@ -74,7 +72,7 @@ function downdetail() {
     var creator = $("#creator").val();//充值人员
     var jsonObj = {
         type: "load",
-        btn_type:"TU_Detail",
+        btn_type: "TU_Detail",
         table: "tab_add_money",
         time: {
             name: "create_date",
@@ -127,9 +125,9 @@ function generateTableRow(data, dic, i) {
     for (index in dic) {
         var td = document.createElement("td");
 
-            td.innerHTML = data[index];
-        
-       
+        td.innerHTML = data[index];
+
+
         tr.appendChild(td);
 
     }

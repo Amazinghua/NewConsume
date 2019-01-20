@@ -134,7 +134,7 @@
                             <input type="text" class="form-control col-lg-10" id="addusrname" />
                         </div>
                         <div class="row form-inline" style="margin-top: 1%">
-                            <label class="col-lg-2">手机号码</label>
+                            <label  class="col-lg-2">手机号码</label>
                             <input type="text" class="form-control col-lg-10" id="addphone" />
                         </div>
                         <div class="row form-inline" style="margin-top: 1%">
